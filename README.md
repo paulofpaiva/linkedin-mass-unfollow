@@ -1,19 +1,20 @@
 LinkedIn Mass Unfollow
 =======================
 
-This browser extension helps you review and unfollow multiple people you follow on LinkedIn from the "Following" page.
+This browser extension helps you review and unfollow multiple people you follow on LinkedIn directly from the \"Following\" page, without leaving the page or using a separate popup list.
 
 What the extension does
 -----------------------
 
 - Detects the LinkedIn "Following" page at:
   - `https://www.linkedin.com/mynetwork/network-manager/people-follow/following/`
-- Scans the page for all "Following" buttons and extracts the names of the people you are following.
-- Shows these users in the extension popup with a checkbox for each one.
-- Lets you:
-  - Select or unselect individual users.
-  - Select or unselect all users at once.
-- Executes unfollow actions one by one in the active tab by:
+- Scans the page for all "Following" buttons and identifies the people you are following.
+- Injects a small checkbox next to each user card on the page.
+- Adds a floating control panel on the page that lets you:
+  - Select or unselect individual users via their checkboxes.
+  - Select or unselect all visible users at once.
+  - Trigger a bulk "Unfollow selected" action.
+- Executes unfollow actions one by one in the current page by:
   - Clicking the "Following" button for each selected user.
   - Waiting for the LinkedIn confirmation modal.
   - Clicking the confirm button in the modal.
@@ -23,13 +24,16 @@ How to use
 
 1. Open the LinkedIn "Following" page in your browser:
    - `https://www.linkedin.com/mynetwork/network-manager/people-follow/following/`
-2. Open the extension popup from the browser toolbar.
-3. Click the button "Load users from current tab".
-4. Wait for the list of users to appear.
-5. Use the checkboxes (or the "Select all" option) to choose who you want to unfollow.
-6. Click "Unfollow selected".
-7. Confirm the action in the popup when asked.
-8. Keep the tab and popup open while the extension runs. When it finishes, refresh the LinkedIn page to see the updated following list.
+2. Wait a few seconds for the extension to inject its UI on the page.
+3. You will see:
+   - A checkbox next to each user you are currently following.
+   - A floating panel in the bottom-right corner with:
+     - A "Select all visible" option.
+     - An "Unfollow selected" button.
+4. Use the checkboxes (or "Select all visible") to choose who you want to unfollow.
+5. Click "Unfollow selected" in the floating panel.
+6. Confirm the action when asked by the extension.
+7. Keep the tab open while the extension runs. When it finishes, refresh the LinkedIn page to see the updated following list.
 
 Notes
 -----
