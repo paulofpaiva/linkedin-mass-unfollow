@@ -1,3 +1,6 @@
+const FOLLOWING_URL =
+  "https://www.linkedin.com/mynetwork/network-manager/people-follow/following/";
+
 function getActiveTab() {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -101,6 +104,40 @@ function setControlsDisabled(disabled) {
   });
 }
 
+async function updateFollowingState() {
+  const loadBtn = document.getElementById("loadUsersButton");
+  const notFollowing = document.getElementById("notFollowingMessage");
+
+  if (!(loadBtn instanceof HTMLButtonElement) || !notFollowing) {
+    return;
+  }
+
+  try {
+    const tab = await getActiveTab();
+    const url = tab.url || "";
+    const isFollowingPage = url.startsWith(FOLLOWING_URL);
+
+    if (isFollowingPage) {
+      loadBtn.style.display = "inline-flex";
+      notFollowing.style.display = "none";
+      setStatus("");
+    } else {
+      loadBtn.style.display = "none";
+      notFollowing.style.display = "block";
+      setStatus(
+        "Abra a página de Following do LinkedIn para carregar os usuários.",
+      );
+    }
+  } catch (err) {
+    console.error(err);
+    loadBtn.style.display = "none";
+    if (notFollowing) {
+      notFollowing.style.display = "block";
+    }
+    setStatus("Não consegui detectar a aba ativa.");
+  }
+}
+
 async function handleLoadUsersClick() {
   setStatus("Lendo usuários na aba atual...");
   setControlsDisabled(true);
@@ -199,6 +236,7 @@ function initSelectAll() {
 document.addEventListener("DOMContentLoaded", () => {
   const loadBtn = document.getElementById("loadUsersButton");
   const unfollowBtn = document.getElementById("unfollowSelectedButton");
+  const goToFollowingLink = document.getElementById("goToFollowingLink");
 
   if (loadBtn instanceof HTMLButtonElement) {
     loadBtn.addEventListener("click", () => {
@@ -212,7 +250,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (goToFollowingLink instanceof HTMLAnchorElement) {
+    goToFollowingLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      getActiveTab()
+        .then((tab) => {
+          if (!tab.id) return;
+          chrome.tabs.update(tab.id, { url: FOLLOWING_URL });
+          setStatus("Redirecionando para a página de Following...");
+        })
+        .catch((err) => {
+          console.error(err);
+          setStatus(
+            "Não consegui redirecionar para a página de Following automaticamente.",
+          );
+        });
+    });
+  }
+
   initSelectAll();
   setStatus("");
+  updateFollowingState();
 });
 
