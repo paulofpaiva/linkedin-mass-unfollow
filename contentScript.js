@@ -185,6 +185,15 @@ function injectStyles() {
       background: #004182;
     }
 
+    #lmu-control-panel button.lmu-btn-secondary {
+      background: #e4f0fe;
+      color: #0a66c2;
+    }
+
+    #lmu-control-panel button.lmu-btn-secondary:hover {
+      background: #d0e3fd;
+    }
+
     #lmu-control-panel button:disabled {
       opacity: 0.6;
       cursor: default;
@@ -278,6 +287,28 @@ function getSelectedLmuCheckboxes() {
       cb.dataset.lmuChecked === "true" &&
       cb.dataset.lmuDisabled !== "true",
   );
+}
+
+function getNextUncheckedCheckboxes(count) {
+  return getAllLmuCheckboxes()
+    .filter(
+      (cb) =>
+        cb instanceof HTMLElement &&
+        cb.dataset.lmuChecked !== "true" &&
+        cb.dataset.lmuDisabled !== "true",
+    )
+    .slice(0, count);
+}
+
+function setCheckboxChecked(el, checked) {
+  if (!(el instanceof HTMLElement)) return;
+  el.dataset.lmuChecked = checked ? "true" : "false";
+  el.setAttribute("aria-checked", checked ? "true" : "false");
+  if (checked) {
+    el.classList.add("lmu-checkbox--checked");
+  } else {
+    el.classList.remove("lmu-checkbox--checked");
+  }
 }
 
 function updatePanelSelectionInfo() {
@@ -432,6 +463,7 @@ function createControlPanel() {
         <input type="checkbox" id="lmu-select-all" />
         <span>Select all visible</span>
       </label>
+      <button id="lmu-select-next-10" type="button" class="lmu-btn-secondary">Select +10</button>
       <button id="lmu-unfollow-selected">Unfollow selected</button>
     </div>
     <div id="lmu-panel-status"></div>
@@ -447,17 +479,18 @@ function createControlPanel() {
       const all = getAllLmuCheckboxes();
       all.forEach((cb) => {
         if (cb instanceof HTMLElement && cb.dataset.lmuDisabled !== "true") {
-          if (selectAll.checked) {
-            cb.dataset.lmuChecked = "true";
-            cb.setAttribute("aria-checked", "true");
-            cb.classList.add("lmu-checkbox--checked");
-          } else {
-            cb.dataset.lmuChecked = "false";
-            cb.setAttribute("aria-checked", "false");
-            cb.classList.remove("lmu-checkbox--checked");
-          }
+          setCheckboxChecked(cb, selectAll.checked);
         }
       });
+      updatePanelSelectionInfo();
+    });
+  }
+
+  const selectNext10Button = document.getElementById("lmu-select-next-10");
+  if (selectNext10Button instanceof HTMLButtonElement) {
+    selectNext10Button.addEventListener("click", () => {
+      const next = getNextUncheckedCheckboxes(10);
+      next.forEach((cb) => setCheckboxChecked(cb, true));
       updatePanelSelectionInfo();
     });
   }
@@ -493,6 +526,9 @@ function createControlPanel() {
       unfollowButton.disabled = true;
       if (selectAll instanceof HTMLInputElement) {
         selectAll.disabled = true;
+      }
+      if (selectNext10Button instanceof HTMLButtonElement) {
+        selectNext10Button.disabled = true;
       }
 
       const statusEl = document.getElementById("lmu-panel-status");
@@ -536,6 +572,9 @@ function createControlPanel() {
       if (selectAll instanceof HTMLInputElement) {
         selectAll.disabled = false;
         selectAll.checked = false;
+      }
+      if (selectNext10Button instanceof HTMLButtonElement) {
+        selectNext10Button.disabled = false;
       }
     });
   }
