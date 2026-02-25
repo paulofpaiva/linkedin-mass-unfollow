@@ -207,19 +207,35 @@ function injectStyles() {
       min-height: 14px;
     }
 
+    .lmu-follow-container {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
     .lmu-checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 2px solid #0a66c2;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #ffffff;
       margin-right: 6px;
-      display: inline-block !important;
-      position: static !important;
-      opacity: 1 !important;
-      width: auto !important;
-      height: auto !important;
-      clip: auto !important;
-      clip-path: none !important;
-      transform: none !important;
-      -webkit-appearance: checkbox !important;
-      appearance: checkbox !important;
-      vertical-align: middle;
+    }
+
+    .lmu-checkbox--checked {
+      background: #0a66c2;
+    }
+
+    .lmu-checkbox--checked::after {
+      content: "✓";
+      color: #ffffff;
+      font-size: 12px;
+      line-height: 1;
     }
   `;
 
@@ -227,14 +243,15 @@ function injectStyles() {
 }
 
 function getAllLmuCheckboxes() {
-  return Array.from(
-    document.querySelectorAll('input.lmu-checkbox[type="checkbox"]'),
-  );
+  return Array.from(document.querySelectorAll(".lmu-checkbox"));
 }
 
 function getSelectedLmuCheckboxes() {
   return getAllLmuCheckboxes().filter(
-    (cb) => cb instanceof HTMLInputElement && cb.checked && !cb.disabled,
+    (cb) =>
+      cb instanceof HTMLElement &&
+      cb.dataset.lmuChecked === "true" &&
+      cb.dataset.lmuDisabled !== "true",
   );
 }
 
@@ -253,36 +270,113 @@ function updatePanelSelectionInfo() {
   statusEl.textContent = `${selected.length} selected out of ${all.length} loaded.`;
 }
 
+function protectCheckboxClicksGlobally() {
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest("input.lmu-checkbox")
+      ) {
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") {
+          event.stopImmediatePropagation();
+        }
+      }
+    },
+    true,
+  );
+}
+
 function ensureCheckboxForButton(button) {
   const index = getOrCreateIndexForButton(button);
 
-  const existing = button.parentElement
-    ? button.parentElement.querySelector(
-        `input.lmu-checkbox[data-lmu-index="${index}"]`,
-      )
-    : null;
+  // Prefer placing the checkbox outside the linked-area (which is the clickable area
+  // that redirects to the profile), as a sibling container.
+  let checkboxContainer = null;
+
+  const linkedArea = button.closest("div.linked-area");
+  if (linkedArea && linkedArea.parentElement) {
+    const cardRoot = linkedArea.parentElement;
+    if (!cardRoot.classList.contains("lmu-card-root")) {
+      cardRoot.classList.add("lmu-card-root");
+    }
+
+    checkboxContainer = cardRoot.querySelector(
+      "div.lmu-card-checkbox-container",
+    );
+
+    if (!checkboxContainer) {
+      checkboxContainer = document.createElement("div");
+      checkboxContainer.className = "lmu-card-checkbox-container";
+      cardRoot.insertBefore(checkboxContainer, linkedArea);
+    }
+  }
+
+  // Fallback: if we cannot find linked-area/cardRoot, try near the avatar row.
+  if (!checkboxContainer) {
+    const cardRoot = button.closest(
+      "div.pmGoFvcJhtRaWMDDBaLtawgnpzaYZpMbOhWSI",
+    );
+    if (cardRoot) {
+      const avatarRow = cardRoot.querySelector(
+        "div.display-flex.align-items-center",
+      );
+      if (avatarRow) {
+        checkboxContainer = avatarRow;
+      }
+    }
+  }
+
+  if (!checkboxContainer) {
+    return;
+  }
+
+  const existing = checkboxContainer.querySelector(
+    `.lmu-checkbox[data-lmu-index="${index}"]`,
+  );
 
   if (existing) {
     return;
   }
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
+  const checkbox = document.createElement("div");
   checkbox.className = "lmu-checkbox";
   checkbox.dataset.lmuIndex = String(index);
   checkbox.title = "Include this user in mass unfollow";
+  checkbox.dataset.lmuChecked = "false";
+  checkbox.setAttribute("role", "checkbox");
+  checkbox.setAttribute("aria-checked", "false");
+  checkbox.tabIndex = 0;
 
-  checkbox.addEventListener("change", () => {
+  function setCheckedState(el, checked) {
+    el.dataset.lmuChecked = checked ? "true" : "false";
+    el.setAttribute("aria-checked", checked ? "true" : "false");
+    if (checked) {
+      el.classList.add("lmu-checkbox--checked");
+    } else {
+      el.classList.remove("lmu-checkbox--checked");
+    }
+  }
+
+  checkbox.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const isChecked = checkbox.dataset.lmuChecked === "true";
+    setCheckedState(checkbox, !isChecked);
     updatePanelSelectionInfo();
   });
 
-  if (button.parentElement) {
-    button.parentElement.insertBefore(checkbox, button);
-  } else if (button.previousSibling) {
-    button.parentNode.insertBefore(checkbox, button);
-  } else {
-    button.before(checkbox);
-  }
+  checkbox.addEventListener("keydown", (event) => {
+    if (event.key === " " || event.key === "Enter") {
+      event.preventDefault();
+      const isChecked = checkbox.dataset.lmuChecked === "true";
+      setCheckedState(checkbox, !isChecked);
+      updatePanelSelectionInfo();
+    }
+  });
+
+  checkboxContainer.appendChild(checkbox);
 }
 
 function initFollowingItems() {
@@ -327,8 +421,16 @@ function createControlPanel() {
     selectAll.addEventListener("change", () => {
       const all = getAllLmuCheckboxes();
       all.forEach((cb) => {
-        if (cb instanceof HTMLInputElement && !cb.disabled) {
-          cb.checked = selectAll.checked;
+        if (cb instanceof HTMLElement && cb.dataset.lmuDisabled !== "true") {
+          if (selectAll.checked) {
+            cb.dataset.lmuChecked = "true";
+            cb.setAttribute("aria-checked", "true");
+            cb.classList.add("lmu-checkbox--checked");
+          } else {
+            cb.dataset.lmuChecked = "false";
+            cb.setAttribute("aria-checked", "false");
+            cb.classList.remove("lmu-checkbox--checked");
+          }
         }
       });
       updatePanelSelectionInfo();
@@ -377,8 +479,12 @@ function createControlPanel() {
           // eslint-disable-next-line no-await-in-loop
           await unfollowByIndex(index, 1500);
           successCount += 1;
-          cb.checked = false;
-          cb.disabled = true;
+          if (cb instanceof HTMLElement) {
+            cb.dataset.lmuChecked = "false";
+            cb.dataset.lmuDisabled = "true";
+            cb.classList.remove("lmu-checkbox--checked");
+            cb.classList.add("lmu-checkbox--disabled");
+          }
         } catch (err) {
           console.error("Error while unfollowing from panel:", index, err);
           failCount += 1;
@@ -434,6 +540,7 @@ function initPageUi() {
   createControlPanel();
   initFollowingItems();
   startObserver();
+  protectCheckboxClicksGlobally();
 }
 
 if (document.readyState === "loading") {
