@@ -207,6 +207,31 @@ function injectStyles() {
       min-height: 14px;
     }
 
+    #lmu-unfollow-selected.lmu-unfollow-loading {
+      cursor: progress;
+    }
+
+    #lmu-unfollow-selected.lmu-unfollow-loading::after {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      border-top-color: rgba(255, 255, 255, 0.3);
+      margin-left: 6px;
+      box-sizing: border-box;
+      animation: lmu-spin 0.8s linear infinite;
+    }
+
+    @keyframes lmu-spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     .lmu-follow-container {
       display: flex !important;
       align-items: center !important;
@@ -438,6 +463,11 @@ function createControlPanel() {
   }
 
   if (unfollowButton instanceof HTMLButtonElement) {
+    if (!unfollowButton.dataset.lmuLabel) {
+      unfollowButton.dataset.lmuLabel =
+        unfollowButton.textContent || "Unfollow selected";
+    }
+
     unfollowButton.addEventListener("click", async () => {
       if (lmuIsRunning) {
         return;
@@ -458,6 +488,8 @@ function createControlPanel() {
       }
 
       lmuIsRunning = true;
+      unfollowButton.classList.add("lmu-unfollow-loading");
+      unfollowButton.textContent = "Unfollowing...";
       unfollowButton.disabled = true;
       if (selectAll instanceof HTMLInputElement) {
         selectAll.disabled = true;
@@ -497,6 +529,9 @@ function createControlPanel() {
       }
 
       lmuIsRunning = false;
+      unfollowButton.classList.remove("lmu-unfollow-loading");
+      unfollowButton.textContent =
+        unfollowButton.dataset.lmuLabel || "Unfollow selected";
       unfollowButton.disabled = false;
       if (selectAll instanceof HTMLInputElement) {
         selectAll.disabled = false;
