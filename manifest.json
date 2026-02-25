@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LinkedIn Mass Unfollow",
   "version": "0.2.0",
-  "description": "Selecione vários perfis na página de Following do LinkedIn e faça unfollow em massa.",
+  "description": "Select multiple profiles on LinkedIn's Following page and unfollow them in bulk.",
   "icons": {
     "16": "icons/linkedin_16.png",
     "32": "icons/linkedin_32.png",

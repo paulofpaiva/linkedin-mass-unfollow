@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>LinkedIn Mass Unfollow</title>
@@ -8,22 +8,22 @@
   <body>
     <h1>LinkedIn Mass Unfollow</h1>
     <p>
-      Abra a página de
-      <strong>Following</strong> no LinkedIn e gerencie quem você segue.
+      Open the
+      <strong>Following</strong> page on LinkedIn and manage who you follow.
     </p>
 
     <div class="section">
       <div id="notFollowingMessage" style="display: none">
         <p>
-          Você não está na página de Following. Clique abaixo para abrir a
-          página correta no LinkedIn.
+          You are not on the Following page. Click below to open the correct
+          page on LinkedIn.
         </p>
         <a href="#" id="goToFollowingLink" class="secondary">
-          Ir para a página de Following
+          Go to the Following page
         </a>
       </div>
       <button id="loadUsersButton" class="secondary">
-        Carregar usuários da aba atual
+        Load users from current tab
       </button>
       <div id="status"></div>
     </div>
@@ -32,15 +32,15 @@
       <div class="toolbar">
         <label>
           <input type="checkbox" id="selectAll" />
-          <span>Selecionar todos</span>
+          <span>Select all</span>
         </label>
         <button id="unfollowSelectedButton" class="primary">
-          Unfollow selecionados
+          Unfollow selected
         </button>
       </div>
       <div id="userListContainer">
         <div id="userList" style="font-size: 12px; color: #5f5f5f">
-          Nenhum usuário carregado ainda.
+          No users loaded yet.
         </div>
       </div>
     </div>

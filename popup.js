@@ -9,7 +9,7 @@ function getActiveTab() {
         return;
       }
       if (!tabs || !tabs.length) {
-        reject(new Error("Nenhuma aba ativa encontrada."));
+        reject(new Error("No active tab found."));
         return;
       }
       resolve(tabs[0]);
@@ -22,7 +22,7 @@ function sendMessageToActiveTab(message) {
     (tab) =>
       new Promise((resolve, reject) => {
         if (!tab.id) {
-          reject(new Error("Aba ativa inválida."));
+          reject(new Error("Invalid active tab."));
           return;
         }
 
@@ -53,7 +53,7 @@ function renderUserList(users) {
 
   if (!users || !users.length) {
     container.textContent =
-      "Nenhum usuário de Following encontrado na página atual.";
+      "No Following users found on the current page.";
     selectAll.checked = false;
     selectAll.disabled = true;
     return;
@@ -125,7 +125,7 @@ async function updateFollowingState() {
       loadBtn.style.display = "none";
       notFollowing.style.display = "block";
       setStatus(
-        "Abra a página de Following do LinkedIn para carregar os usuários.",
+        "Open the LinkedIn Following page to load users.",
       );
     }
   } catch (err) {
@@ -134,12 +134,12 @@ async function updateFollowingState() {
     if (notFollowing) {
       notFollowing.style.display = "block";
     }
-    setStatus("Não consegui detectar a aba ativa.");
+    setStatus("Could not detect the active tab.");
   }
 }
 
 async function handleLoadUsersClick() {
-  setStatus("Lendo usuários na aba atual...");
+  setStatus("Reading users from current tab...");
   setControlsDisabled(true);
 
   try {
@@ -152,25 +152,25 @@ async function handleLoadUsersClick() {
     renderUserList(users);
     setStatus(
       users.length
-        ? `${users.length} usuário(s) encontrado(s).`
-        : "Nenhum usuário encontrado. Verifique se você está na página de Following.",
+        ? `${users.length} user(s) found.`
+        : "No users found. Make sure you are on the Following page.",
     );
   } catch (err) {
     console.error(err);
 
     const msg =
-      (err && err.message) || String(err || "Erro ao enviar mensagem.");
+      (err && err.message) || String(err || "Failed to send message.");
 
     if (
       msg.includes("Could not establish connection") ||
       msg.includes("Receiving end does not exist")
     ) {
       setStatus(
-        "A extensão não está injetada nesta aba. Recarregue a página de Following do LinkedIn e tente novamente.",
+        "The extension is not injected into this tab. Reload the LinkedIn Following page and try again.",
       );
     } else {
       setStatus(
-        "Não consegui acessar a página. Abra a lista de pessoas que você segue no LinkedIn, recarregue a aba e tente de novo.",
+        "Could not access the page. Open the list of people you follow on LinkedIn, reload the tab, and try again.",
       );
     }
   } finally {
@@ -182,17 +182,17 @@ async function handleUnfollowSelectedClick() {
   const ids = collectSelectedIds();
 
   if (!ids.length) {
-    setStatus("Selecione pelo menos um usuário para fazer unfollow.");
+    setStatus("Select at least one user to unfollow.");
     return;
   }
 
-  const confirmText = `Você tem certeza que quer fazer unfollow em ${ids.length} usuário(s)?`;
+  const confirmText = `Are you sure you want to unfollow ${ids.length} user(s)?`;
   if (!window.confirm(confirmText)) {
     return;
   }
 
   setControlsDisabled(true);
-  setStatus("Executando unfollow em sequência. Não feche esta janela...");
+  setStatus("Running unfollow sequence. Do not close this window...");
 
   try {
     const response = await sendMessageToActiveTab({
@@ -206,12 +206,12 @@ async function handleUnfollowSelectedClick() {
     const failCount = results.length - successCount;
 
     setStatus(
-      `Concluído: ${successCount} sucesso(s), ${failCount} falha(s). Atualize a página do LinkedIn para ver o resultado.`,
+      `Done: ${successCount} success(es), ${failCount} failure(s). Refresh the LinkedIn page to see the result.`,
     );
   } catch (err) {
     console.error(err);
     setStatus(
-      "Erro ao tentar fazer unfollow. Abra o console do DevTools do popup para detalhes.",
+      "Error while trying to unfollow. Open the popup DevTools console for details.",
     );
   } finally {
     setControlsDisabled(false);
@@ -257,12 +257,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((tab) => {
           if (!tab.id) return;
           chrome.tabs.update(tab.id, { url: FOLLOWING_URL });
-          setStatus("Redirecionando para a página de Following...");
+          setStatus("Redirecting to the Following page...");
         })
         .catch((err) => {
           console.error(err);
           setStatus(
-            "Não consegui redirecionar para a página de Following automaticamente.",
+            "Could not redirect to the Following page automatically.",
           );
         });
     });

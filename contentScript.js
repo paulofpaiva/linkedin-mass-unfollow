@@ -24,7 +24,7 @@ function collectFollowingButtons() {
 
     if (!name) {
       const text = button.textContent || "";
-      name = text.trim() || `Usuário ${index + 1}`;
+      name = text.trim() || `User ${index + 1}`;
     }
 
     users.push({
@@ -51,7 +51,7 @@ function waitForConfirmModal(timeoutMs = 5000, intervalMs = 200) {
       }
 
       if (Date.now() - start >= timeoutMs) {
-        reject(new Error("Modal de confirmação não apareceu a tempo."));
+        reject(new Error("Confirmation modal did not appear in time."));
         return;
       }
 
@@ -71,12 +71,7 @@ function findUnfollowButtonInModal(modal) {
     const text = (btn.textContent || "").trim().toLowerCase();
     if (!text) continue;
 
-    if (
-      text.includes("unfollow") ||
-      text.includes("deixar de seguir") ||
-      text.includes("stop following") ||
-      text.includes("deixar de acompanhar")
-    ) {
+    if (text.includes("unfollow") || text.includes("stop following")) {
       return btn;
     }
   }
@@ -89,7 +84,7 @@ async function unfollowByIndex(index, delayMs) {
   const button = document.querySelector(selector);
 
   if (!button) {
-    throw new Error(`Botão de Following não encontrado para índice ${index}.`);
+    throw new Error(`Following button not found for index ${index}.`);
   }
 
   button.click();
@@ -99,14 +94,14 @@ async function unfollowByIndex(index, delayMs) {
     modal = await waitForConfirmModal();
   } catch (err) {
     throw new Error(
-      `Modal de confirmação não apareceu para índice ${index}: ${err.message}`,
+      `Confirmation modal did not appear for index ${index}: ${err.message}`,
     );
   }
 
   const confirmButton = findUnfollowButtonInModal(modal);
   if (!confirmButton) {
     throw new Error(
-      `Botão de confirmar Unfollow não encontrado no modal para índice ${index}.`,
+      `Unfollow confirm button not found in modal for index ${index}.`,
     );
   }
 
@@ -127,7 +122,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const users = collectFollowingButtons();
       sendResponse({ ok: true, users });
     } catch (err) {
-      console.error("Erro ao coletar usuários de Following:", err);
+      console.error("Error while collecting Following users:", err);
       sendResponse({
         ok: false,
         error: err && err.message ? err.message : String(err),
@@ -145,7 +140,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (!Array.isArray(ids)) {
         sendResponse({
           ok: false,
-          error: "Lista de ids inválida.",
+          error: "Invalid id list.",
           results: [],
         });
         return;
@@ -158,7 +153,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           await unfollowByIndex(numericId, delayMs || 1500);
           results.push({ id: numericId, success: true });
         } catch (err) {
-          console.error("Erro ao fazer unfollow:", numericId, err);
+          console.error("Error while unfollowing:", numericId, err);
           results.push({
             id: numericId,
             success: false,
