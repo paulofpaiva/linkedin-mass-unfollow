@@ -12,13 +12,11 @@ function collectFollowingButtons() {
   const users = [];
 
   buttons.forEach((button, index) => {
-    // Marcar o botão com um índice próprio da extensão
     button.dataset.lmuIndex = String(index);
 
     const aria = button.getAttribute("aria-label") || "";
     let name = "";
 
-    // Ex.: "Click to stop following Bruna Soares"
     const match = aria.match(/Click to stop following\s+(.+)$/i);
     if (match && match[1]) {
       name = match[1].trim();
@@ -73,7 +71,6 @@ function findUnfollowButtonInModal(modal) {
     const text = (btn.textContent || "").trim().toLowerCase();
     if (!text) continue;
 
-    // Cobrir inglês e alguns termos em PT
     if (
       text.includes("unfollow") ||
       text.includes("deixar de seguir") ||
@@ -115,7 +112,6 @@ async function unfollowByIndex(index, delayMs) {
 
   confirmButton.click();
 
-  // Pequena espera entre ações para não parecer tão "bot".
   if (delayMs && delayMs > 0) {
     await wait(delayMs);
   }
@@ -137,7 +133,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         error: err && err.message ? err.message : String(err),
       });
     }
-    return; // síncrono
+    return;
   }
 
   if (message.type === "LMU_UNFOLLOW_SELECTED") {
@@ -159,7 +155,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const numericId = Number(id);
 
         try {
-          // eslint-disable-next-line no-await-in-loop
           await unfollowByIndex(numericId, delayMs || 1500);
           results.push({ id: numericId, success: true });
         } catch (err) {
@@ -175,7 +170,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sendResponse({ ok: true, results });
     })();
 
-    // Indica que vamos responder de forma assíncrona
     return true;
   }
 });

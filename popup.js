@@ -84,10 +84,7 @@ function collectSelectedIds() {
     document.querySelectorAll(".user-checkbox"),
   ).filter((el) => el instanceof HTMLInputElement);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const selected = /** @type {HTMLInputElement[]} */ (checkboxes).filter(
-    (cb) => cb.checked,
-  );
+  const selected = checkboxes.filter((cb) => cb.checked);
 
   return selected.map((cb) => Number(cb.dataset.id));
 }
@@ -153,7 +150,6 @@ async function handleUnfollowSelectedClick() {
   }
 
   const confirmText = `Você tem certeza que quer fazer unfollow em ${ids.length} usuário(s)?`;
-  // Pequena confirmação extra para evitar erros.
   if (!window.confirm(confirmText)) {
     return;
   }
