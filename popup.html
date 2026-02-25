@@ -9,40 +9,19 @@
     <h1>LinkedIn Mass Unfollow</h1>
     <p>
       Open the
-      <strong>Following</strong> page on LinkedIn and manage who you follow.
+      <strong>Following</strong> page on LinkedIn and manage who you follow
+      directly on that page.
     </p>
 
     <div class="section">
-      <div id="notFollowingMessage" style="display: none">
-        <p>
-          You are not on the Following page. Click below to open the correct
-          page on LinkedIn.
-        </p>
-        <a href="#" id="goToFollowingLink" class="secondary">
-          Go to the Following page
-        </a>
-      </div>
-      <button id="loadUsersButton" class="secondary">
-        Load users from current tab
+      <p style="margin-bottom: 8px">
+        Click the button below to open the correct LinkedIn page. There you
+        will see checkboxes and a control panel injected by this extension.
+      </p>
+      <button id="openFollowingButton" class="secondary">
+        Open Following page
       </button>
       <div id="status"></div>
-    </div>
-
-    <div class="section" style="margin-top: 10px">
-      <div class="toolbar">
-        <label>
-          <input type="checkbox" id="selectAll" />
-          <span>Select all</span>
-        </label>
-        <button id="unfollowSelectedButton" class="primary">
-          Unfollow selected
-        </button>
-      </div>
-      <div id="userListContainer">
-        <div id="userList" style="font-size: 12px; color: #5f5f5f">
-          No users loaded yet.
-        </div>
-      </div>
     </div>
 
     <script src="popup.js"></script>
