@@ -15,38 +15,40 @@ function getOrCreateIndexForButton(button) {
   return index;
 }
 
-function collectFollowingButtons() {
-  const buttons = Array.from(
-    document.querySelectorAll(
-      'button[aria-label^="Click to stop following"]',
-    ),
-  );
+function findFollowingButtons() {
+  const results = new Set();
 
-  const users = [];
+  // 1) Match by aria-label in different languages (best effort)
+  const ariaSelectors = [
+    'button[aria-label*="stop following"]', // English
+    'button[aria-label*="parar de seguir"]', // Portuguese
+    'button[aria-label*="dejar de seguir"]', // Spanish
+  ].join(",");
 
-  buttons.forEach((button) => {
-    const index = getOrCreateIndexForButton(button);
-
-    const aria = button.getAttribute("aria-label") || "";
-    let name = "";
-
-    const match = aria.match(/Click to stop following\s+(.+)$/i);
-    if (match && match[1]) {
-      name = match[1].trim();
+  document.querySelectorAll(ariaSelectors).forEach((btn) => {
+    if (btn instanceof HTMLButtonElement) {
+      results.add(btn);
     }
-
-    if (!name) {
-      const text = button.textContent || "";
-      name = text.trim() || `User ${index + 1}`;
-    }
-
-    users.push({
-      id: index,
-      name,
-    });
   });
 
-  return users;
+  // 2) Fallback: match by visual text on artdeco buttons
+  const actionButtons = document.querySelectorAll(
+    "button.artdeco-button.artdeco-button--muted.artdeco-button--secondary",
+  );
+
+  actionButtons.forEach((btn) => {
+    if (!(btn instanceof HTMLButtonElement)) return;
+    const text = (btn.textContent || "").trim().toLowerCase();
+    if (
+      text.includes("following") ||
+      text.includes("seguindo") ||
+      text.includes("siguiendo")
+    ) {
+      results.add(btn);
+    }
+  });
+
+  return Array.from(results);
 }
 
 function waitForConfirmModal(timeoutMs = 5000, intervalMs = 200) {
@@ -207,6 +209,17 @@ function injectStyles() {
 
     .lmu-checkbox {
       margin-right: 6px;
+      display: inline-block !important;
+      position: static !important;
+      opacity: 1 !important;
+      width: auto !important;
+      height: auto !important;
+      clip: auto !important;
+      clip-path: none !important;
+      transform: none !important;
+      -webkit-appearance: checkbox !important;
+      appearance: checkbox !important;
+      vertical-align: middle;
     }
   `;
 
@@ -273,11 +286,7 @@ function ensureCheckboxForButton(button) {
 }
 
 function initFollowingItems() {
-  const buttons = Array.from(
-    document.querySelectorAll(
-      'button[aria-label^="Click to stop following"]',
-    ),
-  );
+  const buttons = findFollowingButtons();
 
   buttons.forEach((button) => {
     ensureCheckboxForButton(button);
@@ -394,8 +403,27 @@ function createControlPanel() {
 }
 
 function startObserver() {
-  const observer = new MutationObserver(() => {
-    initFollowingItems();
+  const observer = new MutationObserver((mutations) => {
+    let shouldUpdate = false;
+
+    for (const mutation of mutations) {
+      const node = mutation.target;
+      const el =
+        node instanceof Element ? node : node.parentElement;
+
+      // Ignore mutations that happen inside our own control panel,
+      // to avoid feedback loops when we update the status text.
+      if (el && el.closest("#lmu-control-panel")) {
+        continue;
+      }
+
+      shouldUpdate = true;
+      break;
+    }
+
+    if (shouldUpdate) {
+      initFollowingItems();
+    }
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
