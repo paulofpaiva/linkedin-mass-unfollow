@@ -25,6 +25,9 @@ function setStatus(text) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const openFollowingButton = document.getElementById("openFollowingButton");
+  const sectionParagraph = document.querySelector(
+    ".section p",
+  );
 
   if (openFollowingButton instanceof HTMLButtonElement) {
     openFollowingButton.addEventListener("click", (event) => {
@@ -44,6 +47,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  setStatus("");
+  getActiveTab()
+    .then((tab) => {
+      const url = tab.url || "";
+      if (url.startsWith(FOLLOWING_URL)) {
+        if (sectionParagraph instanceof HTMLParagraphElement) {
+          sectionParagraph.textContent =
+            "You are already on the LinkedIn Following page. Use the checkboxes next to each user and the Mass Unfollow panel in the bottom-right corner of the page.";
+        }
+        if (openFollowingButton instanceof HTMLButtonElement) {
+          openFollowingButton.style.display = "none";
+        }
+        setStatus("");
+      } else {
+        setStatus("");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      setStatus("");
+    });
 });
 
