@@ -1,13 +1,13 @@
 LinkedIn Mass Unfollow
 =======================
 
-This browser extension helps you review and unfollow multiple people you follow on LinkedIn directly from the \"Following\" page, without leaving the page or using a separate popup list.
+This browser extension helps you review and unfollow multiple people you follow on LinkedIn directly from the "Followers" page, without leaving the page or using a separate popup list.
 
 What the extension does
 -----------------------
 
-- Detects the LinkedIn "Following" page at:
-  - `https://www.linkedin.com/mynetwork/network-manager/people-follow/following/`
+- Detects the LinkedIn "Followers" page at:
+  - `https://www.linkedin.com/mynetwork/network-manager/people-follow/followers/`
 - Scans the page for all "Following" buttons and identifies the people you are following.
 - Injects a small checkbox next to each user card on the page.
 - Adds a floating control panel on the page that lets you:
@@ -22,8 +22,8 @@ What the extension does
 How to use
 ----------
 
-1. Open the LinkedIn "Following" page in your browser:
-   - `https://www.linkedin.com/mynetwork/network-manager/people-follow/following/`
+1. Open the LinkedIn "Followers" page in your browser:
+   - `https://www.linkedin.com/mynetwork/network-manager/people-follow/followers/`
 2. Wait a few seconds for the extension to inject its UI on the page.
 3. You will see:
    - A checkbox next to each user you are currently following.
@@ -39,6 +39,6 @@ Notes
 -----
 
 - The extension only interacts with the official LinkedIn UI. It does not call any internal or undocumented LinkedIn APIs directly.
-- The extension runs only on the "Following" manager page. Other LinkedIn pages are ignored.
+- The extension runs only on the "Followers" manager page. Other LinkedIn pages are ignored.
 - LinkedIn may change its HTML structure at any time; if the selectors used by this extension stop matching, the extension will need to be updated.
 

@@ -319,7 +319,7 @@ function updatePanelSelectionInfo() {
   const selected = getSelectedLmuCheckboxes();
 
   if (!all.length) {
-    statusEl.textContent = "No Following users detected on this page yet.";
+    statusEl.textContent = "No users detected on this page yet.";
     return;
   }
 

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LinkedIn Mass Unfollow",
   "version": "0.2.0",
-  "description": "Select multiple profiles on LinkedIn's Following page and unfollow them in bulk.",
+  "description": "Select multiple profiles on LinkedIn's Followers page and unfollow them in bulk.",
   "icons": {
     "16": "icons/linkedin_16.png",
     "32": "icons/linkedin_32.png",
@@ -22,7 +22,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.linkedin.com/mynetwork/network-manager/people-follow/following*"
+        "https://www.linkedin.com/mynetwork/network-manager/people-follow/followers*"
       ],
       "js": ["contentScript.js"],
       "run_at": "document_idle"

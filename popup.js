@@ -1,5 +1,5 @@
-const FOLLOWING_URL =
-  "https://www.linkedin.com/mynetwork/network-manager/people-follow/following/";
+const FOLLOWERS_URL =
+  "https://www.linkedin.com/mynetwork/network-manager/people-follow/followers/";
 
 function getActiveTab() {
   return new Promise((resolve, reject) => {
@@ -32,16 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (openFollowingButton instanceof HTMLButtonElement) {
     openFollowingButton.addEventListener("click", (event) => {
       event.preventDefault();
-      setStatus("Redirecting to the Following page...");
+      setStatus("Redirecting to the Followers page...");
       getActiveTab()
         .then((tab) => {
           if (!tab.id) return;
-          chrome.tabs.update(tab.id, { url: FOLLOWING_URL });
+          chrome.tabs.update(tab.id, { url: FOLLOWERS_URL });
         })
         .catch((err) => {
           console.error(err);
           setStatus(
-            "Could not redirect to the Following page automatically.",
+            "Could not redirect to the Followers page automatically.",
           );
         });
     });
@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
   getActiveTab()
     .then((tab) => {
       const url = tab.url || "";
-      if (url.startsWith(FOLLOWING_URL)) {
+      if (url.startsWith(FOLLOWERS_URL)) {
         if (sectionParagraph instanceof HTMLParagraphElement) {
           sectionParagraph.textContent =
-            "You are already on the LinkedIn Following page. Use the checkboxes next to each user and the Mass Unfollow panel in the bottom-right corner of the page.";
+            "You are already on the LinkedIn Followers page. Use the checkboxes next to each user and the Mass Unfollow panel in the bottom-right corner of the page.";
         }
         if (openFollowingButton instanceof HTMLButtonElement) {
           openFollowingButton.style.display = "none";
